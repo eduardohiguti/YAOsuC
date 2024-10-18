@@ -10,22 +10,6 @@ pub fn main() anyerror!void {
     const font = rl.loadFont("resources/comic.ttf");
     defer rl.closeWindow();
 
-    const center = rl.Vector2.init(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-    const numbersPosition = rl.Vector2.init((SCREEN_WIDTH / 2) - 20, (SCREEN_HEIGHT / 2) - 25);
-    var cursorPosition = center;
-
-    const innerRadius = 60.0;
-    const outerRadius = 65.0;
-
-    const startAngle = 0.0;
-    const endAngle = 360.0;
-    const segments = 0.0;
-
-    // IMAGE
-    const default_1 = rl.loadImage("resources/default-1.png");
-    const num1 = rl.loadTextureFromImage(default_1);
-    rl.unloadImage(default_1);
-
     // AUDIO
     rl.initAudioDevice();
 
@@ -35,10 +19,6 @@ pub fn main() anyerror!void {
 
     var timePlayed: f32 = 0.0;
     var pause = false;
-
-    // SCORE
-
-    rl.setTargetFPS(144);
 
     while (!rl.windowShouldClose()) {
         rl.clearBackground(rl.Color.black);
@@ -61,16 +41,9 @@ pub fn main() anyerror!void {
         rl.beginDrawing();
         defer rl.endDrawing();
 
-        rl.drawFPS(0, 0);
+        rl.drawFPS(700, 580);
 
-        rl.drawCircleV(center, 60, rl.Color.white);
-        rl.drawRing(center, innerRadius, outerRadius, startAngle, endAngle, segments, rl.Color.maroon);
-        rl.drawTextureV(num1, numbersPosition, rl.Color.black);
-
-        //Right key
-        if (rl.isKeyDown(rl.KeyboardKey.key_x)) rl.drawCircleV(center, 80, rl.fade(rl.Color.pink, 0.1));
-        //Left key
-        if (rl.isKeyDown(rl.KeyboardKey.key_z)) rl.drawCircleV(center, 80, rl.fade(rl.Color.green, 0.1));
+        hitcircle(200, 300, 40);
 
         //TODO implementar score de algum jeito
         //const score = 50;
@@ -98,11 +71,60 @@ pub fn main() anyerror!void {
         rl.drawTextEx(font, "0", leftKey, 30, 20, rl.Color.black);
 
         //Cursor
-        cursorPosition = rl.getMousePosition();
-        rl.drawCircleV(cursorPosition, 20, rl.Color.yellow);
+        cursorInit(true);
     }
 
     rl.unloadMusicStream(music);
     rl.closeAudioDevice();
     rl.unloadFont(font);
+}
+
+fn cursorInit(ActivateHitExplosion: bool) void {
+    var cursorPosition = rl.Vector2.init(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+    cursorPosition = rl.getMousePosition();
+    rl.drawCircleV(cursorPosition, 20, rl.Color.yellow);
+
+    if (ActivateHitExplosion) {
+        hit_explosion(cursorPosition);
+    }
+}
+
+fn hit_explosion(cursorPosition: rl.Vector2) void {
+    //Right key
+    if (rl.isKeyDown(rl.KeyboardKey.key_x)) {
+        rl.drawCircleV(cursorPosition, 80, rl.fade(rl.Color.pink, 0.1));
+    }
+    //Left key
+    if (rl.isKeyDown(rl.KeyboardKey.key_z)) {
+        rl.drawCircleV(cursorPosition, 80, rl.fade(rl.Color.green, 0.1));
+    }
+}
+
+fn hitcircle(posX: f32, posY: f32, radius: f32) void {
+    const HitCirclePosition = rl.Vector2.init(posX, posY);
+    rl.drawCircleV(HitCirclePosition, radius, rl.Color.white);
+
+    hitcircleNumber(posX, posY);
+
+    approachCircle(posX, posY, radius);
+}
+
+fn hitcircleNumber(posX: f32, posY: f32) void {
+    const default_1 = rl.loadImage("resources/default-1.png");
+    const num1 = rl.loadTextureFromImage(default_1);
+    const numberPosition = rl.Vector2.init(posX - 20, posY - 25);
+
+    rl.drawTextureV(num1, numberPosition, rl.Color.black);
+    rl.unloadImage(default_1);
+}
+
+fn approachCircle(posX: f32, posY: f32, radius: f32) void {
+    const ApproachCirclePosition = rl.Vector2.init(posX, posY);
+    const innerRadius = radius;
+    const outerRadius = radius + 5;
+    const startAngle = 0.0;
+    const endAngle = 360.0;
+    const segments = 0.0;
+
+    rl.drawRing(ApproachCirclePosition, innerRadius, outerRadius, startAngle, endAngle, segments, rl.Color.maroon);
 }
