@@ -19,6 +19,15 @@ pub fn main() anyerror!void {
     var timePlayed: f32 = 0.0;
     var pause = false;
 
+    // LOAD TEXTURES
+
+    const hitcircleImage = rl.loadImage("resources/hitcircle.png");
+    const hitcircleTexture = rl.loadTextureFromImage(hitcircleImage);
+    const default_1 = rl.loadImage("resources/default-1.png");
+    const num1Texture = rl.loadTextureFromImage(default_1);
+    const approachCircleImage = rl.loadImage("resources/approachcircle.png");
+    const approachCircleTexture = rl.loadTextureFromImage(approachCircleImage);
+
     // MAIN GAME LOOP
     while (!rl.windowShouldClose()) {
         rl.clearBackground(rl.Color.black);
@@ -43,7 +52,7 @@ pub fn main() anyerror!void {
 
         rl.drawFPS(700, 580);
 
-        hitcircle(200, 300);
+        hitcircle(200, 300, hitcircleTexture, num1Texture, approachCircleTexture);
 
         //TODO implementar score de algum jeito
         //const score = 50;
@@ -60,6 +69,9 @@ pub fn main() anyerror!void {
         cursorInit(true);
     }
 
+    rl.unloadImage(hitcircleImage);
+    rl.unloadImage(default_1);
+    rl.unloadImage(approachCircleImage);
     rl.unloadMusicStream(music);
     rl.closeAudioDevice();
 }
@@ -105,32 +117,22 @@ fn hitExplosion(cursorPosition: rl.Vector2) void {
     }
 }
 
-fn hitcircle(posX: f32, posY: f32) void {
+fn hitcircle(posX: f32, posY: f32, hitcircleTexture: rl.Texture2D, num1Texture: rl.Texture2D, approachCircleTexture: rl.Texture2D) void {
     const hitcirclePosition = rl.Vector2.init(posX, posY);
 
-    const hitcircleImage = rl.loadImage("resources/hitcircle.png");
-    const hitcircleTexture = rl.loadTextureFromImage(hitcircleImage);
     rl.drawTextureV(hitcircleTexture, hitcirclePosition, rl.Color.green);
-
-    hitcircleNumber(posX, posY);
-
-    approachCircle(posX, posY);
-    rl.unloadImage(hitcircleImage);
+    hitcircleNumber(posX, posY, num1Texture);
+    approachCircle(posX, posY, approachCircleTexture);
 }
 
-fn hitcircleNumber(posX: f32, posY: f32) void {
-    const default_1 = rl.loadImage("resources/default-1.png");
-    const num1 = rl.loadTextureFromImage(default_1);
+fn hitcircleNumber(posX: f32, posY: f32, num1Texture: rl.Texture2D) void {
     const numberPosition = rl.Vector2.init(posX + 37, posY + 35);
 
-    rl.drawTextureV(num1, numberPosition, rl.Color.white);
-    rl.unloadImage(default_1);
+    rl.drawTextureV(num1Texture, numberPosition, rl.Color.white);
 }
 
-fn approachCircle(posX: f32, posY: f32) void {
+fn approachCircle(posX: f32, posY: f32, approachCircleTexture: rl.Texture2D) void {
     const approachCirclePosition = rl.Vector2.init(posX, posY);
 
-    const approachCircleImage = rl.loadImage("resources/approachcircle.png");
-    const approachCircleTexture = rl.loadTextureFromImage(approachCircleImage);
     rl.drawTextureV(approachCircleTexture, approachCirclePosition, rl.Color.white);
 }
